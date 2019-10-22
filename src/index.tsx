@@ -1,6 +1,7 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom';
 import './index.css';
+import { number } from 'prop-types';
 
 interface SquareProps {
   value: 'O' | 'X' | null;
@@ -55,6 +56,8 @@ class Board extends React.Component<BoardProps, {}> {
 
 interface HistoryData {
   squares: ('O' | 'X' | null)[];
+  col: number;
+  row: number;
 }
 
 interface GameState {
@@ -93,7 +96,9 @@ class Game extends React.Component<{}, GameState> {
           // null, null, null,
           // null, null, null,
           // ]
-          squares: Array(9).fill(null)
+          squares: Array(9).fill(null),
+          col: 0,
+          row: 0
         }
       ],
       // 'X'の操作
@@ -122,11 +127,17 @@ class Game extends React.Component<{}, GameState> {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
+
+    let col: number = (i % 3) + 1;
+    let row: number = Math.floor(i / 3) + 1;
+
     this.setState({
       // 履歴を上書き（追加）
       history: history.concat([
         {
-          squares: squares
+          squares: squares,
+          col: col,
+          row: row
         }
       ]),
       stepNumber: history.length,
@@ -153,8 +164,12 @@ class Game extends React.Component<{}, GameState> {
     const winner: string | null = calculateWinner(current.squares);
 
     const moves = history.map((step: HistoryData, move: number) => {
+      let dispColRow: string =
+        '(' + 'col:' + step.col + ', row:' + step.row + ')';
       // ボタン名を生成
-      const desc: string = move ? 'Go to move #' + move : 'Go to game start';
+      const desc: string = move
+        ? 'Go to move #' + move + dispColRow
+        : 'Go to game start';
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
