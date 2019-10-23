@@ -163,14 +163,14 @@ class Game extends React.Component<{}, GameState> {
     const winner: string | null = calculateWinner(current.squares);
     const moves = history.map((step: HistoryData, move: number) => {
       let dispColRow: string =
-        '(' + 'col:' + String(step.col) + ', row:' + String(step.row) + ')';
+        '(col:' + String(step.col) + ', row:' + String(step.row) + ')';
       // ボタン名を生成
       const desc: string = move
         ? 'Go to move #' + move + dispColRow
         : 'Go to game start';
 
       let style: CSSProperties = { fontWeight: 'normal' };
-      if (move == this.state.stepNumber) {
+      if (move === this.state.stepNumber) {
         style = {
           fontWeight: 'bold'
         };
