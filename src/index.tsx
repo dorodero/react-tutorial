@@ -51,6 +51,23 @@ class Board extends React.Component<BoardProps, {}> {
   }
 }
 
+interface ToggleProps {
+  isOn: boolean;
+  onName: string;
+  offName: string;
+  onClick: () => void;
+}
+
+class Toggle extends React.Component<ToggleProps, {}> {
+  render() {
+    return (
+      <button onClick={this.props.onClick}>
+        {this.props.isOn ? this.props.onName : this.props.offName}
+      </button>
+    );
+  }
+}
+
 interface HistoryData {
   squares: ('O' | 'X' | null)[];
   col: number;
@@ -80,6 +97,8 @@ interface GameState {
   xIsNext: boolean;
   // 何手目の状態を見ているか
   stepNumber: number;
+  // ソート
+  isAsc: boolean;
 }
 
 class Game extends React.Component<{}, GameState> {
@@ -101,7 +120,9 @@ class Game extends React.Component<{}, GameState> {
       // 'X'の操作
       xIsNext: true,
       // 0手目
-      stepNumber: 0
+      stepNumber: 0,
+      // 昇順
+      isAsc: true
     };
   }
 
@@ -140,6 +161,12 @@ class Game extends React.Component<{}, GameState> {
       stepNumber: history.length,
       // 先取交代
       xIsNext: !this.state.xIsNext
+    });
+  }
+
+  handleToggleClick() {
+    this.setState({
+      isAsc: !this.state.isAsc
     });
   }
 
@@ -196,7 +223,13 @@ class Game extends React.Component<{}, GameState> {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+          <Toggle
+            isOn={this.state.isAsc}
+            onName={'asc⇒desc'}
+            offName={'desc⇒asc'}
+            onClick={() => this.handleToggleClick()}
+          />
+          <ol>{this.state.isAsc ? moves : moves.reverse()}</ol>
         </div>
       </div>
     );
