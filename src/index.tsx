@@ -223,7 +223,11 @@ class Game extends React.Component<{}, GameState> {
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      if (this.state.history.length > 3 * 3) {
+        status = 'Drow';
+      } else {
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      }
     }
 
     return (
