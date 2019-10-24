@@ -5,9 +5,17 @@ import './index.css';
 interface SquareProps {
   value: 'O' | 'X' | null;
   onClick: () => void;
+  highlight: boolean;
 }
 
 function Square(props: SquareProps) {
+  if (props.highlight) {
+    return (
+      <button className="square" onClick={props.onClick}>
+        <mark>{props.value}</mark>
+      </button>
+    );
+  }
   return (
     <button className="square" onClick={props.onClick}>
       {props.value}
@@ -21,10 +29,11 @@ interface BoardProps {
 }
 
 class Board extends React.Component<BoardProps, {}> {
-  renderSquare(i: number) {
+  renderSquare(i: number, highlight: boolean) {
     return (
       <Square
         key={i}
+        highlight={highlight}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)}
       />
@@ -32,6 +41,7 @@ class Board extends React.Component<BoardProps, {}> {
   }
 
   render() {
+    const winnerLine = getWinnerLine(this.props.squares);
     let board = [];
     let board_row = [];
     for (let i = 0; i < 3; i++) {
@@ -39,7 +49,7 @@ class Board extends React.Component<BoardProps, {}> {
       board_row = [];
       for (let j = 0; j < 3; j++) {
         let num = j + i * 3;
-        board_row.push(this.renderSquare(num));
+        board_row.push(this.renderSquare(num, winnerLine.indexOf(num) >= 0));
       }
       board.push(
         <div className="board-row" key={i}>
@@ -256,15 +266,54 @@ function calculateWinner(squares: ('O' | 'X' | null)[]): string | null {
     [0, 3, 6], // 横
     [1, 4, 7],
     [2, 5, 8],
-    [0, 4, 8],
+    [0, 4, 8], // 斜め
     [2, 4, 6]
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+    if (isAllTheSame(squares[a], squares[b], squares[c])) {
       // a-cまですべて同じなのでどれを返却でもよい
       return squares[a];
     }
   }
   return null;
+}
+
+/**
+ * 勝利につながったマス目を取得
+ * @param squares マスの状態
+ * @returns 勝利につながったマス目
+ */
+function getWinnerLine(squares: ('O' | 'X' | null)[]): number[] {
+  const lines = [
+    [0, 1, 2], // 縦
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6], // 横
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8], // 斜め
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (isAllTheSame(squares[a], squares[b], squares[c])) {
+      return lines[i];
+    }
+  }
+  return [];
+}
+
+/**
+ * val1 val2 val3がすべて一致するかを判定
+ * @param val1 値1
+ * @param val2 値2
+ * @param val3 値3
+ */
+function isAllTheSame(
+  val1: string | null,
+  val2: string | null,
+  val3: string | null
+) {
+  return val1 && val1 === val2 && val1 === val3;
 }
